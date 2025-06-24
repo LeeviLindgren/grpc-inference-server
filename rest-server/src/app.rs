@@ -15,11 +15,13 @@ use mnist::{
     types::{MnistImage, MnistPrediction},
 };
 
+#[derive(Debug, Clone)]
 pub enum WeightsProvider {
     LocalFile(String),
     S3 { bucket: String, key: String },
 }
 
+#[derive(Debug, Clone)]
 pub struct AppConfig {
     pub device: Device,
     pub dtype: DType,

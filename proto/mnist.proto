@@ -1,0 +1,22 @@
+syntax = "proto3";
+package mnist;
+
+service Mnist {
+  // Predicts the label for a given MNIST image.
+  rpc Predict(MnistImage) returns (MnistPrediction);
+}
+
+message MnistImage {
+  // The pixel data for the image, represented as a repeated field of integers.
+  // Each integer represents a pixel value (0-255) in the grayscale image.
+  repeated float data = 2;
+}
+
+message MnistPrediction {
+    // The predicted label for the image, typically a digit from 0 to 9.
+    int32 label = 1;
+
+    // Class probabilities
+    repeated float probabilities = 2;
+
+}

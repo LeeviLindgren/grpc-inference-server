@@ -26,6 +26,21 @@ where
     Ok(data)
 }
 
+impl TryFrom<Vec<f32>> for MnistImage {
+    type Error = Error;
+
+    fn try_from(data: Vec<f32>) -> Result<Self> {
+        if data.len() != MNIST_IMAGE_SIZE {
+            return Err(Error::custom(format!(
+                "Expected {} elements, got {}",
+                MNIST_IMAGE_SIZE,
+                data.len()
+            )));
+        }
+        Ok(MnistImage { data })
+    }
+}
+
 impl TryInto<Tensor> for MnistImage {
     type Error = Error;
 
