@@ -1,4 +1,5 @@
 #![allow(unused)]
+use image::Pixel;
 use tonic::{Request, Response, Status, transport::Server};
 
 use proto::mnist_server::{Mnist, MnistServer};
@@ -35,13 +36,12 @@ impl Mnist for MnistService {
         &self,
         request: Request<MnistImage>,
     ) -> Result<Response<MnistPrediction>, Status> {
-        let input_image = request
-            .into_inner()
-            .data
-            .iter()
-            .map(|&x| x as f32)
-            .collect::<Vec<f32>>();
-        let input_image = mnist::types::MnistImage::try_from(input_image).unwrap();
+        // Preprocess the image data by converting to grayscale and resizing
+        // and return pixels as a vector of f32
+        let processed_image = preprocess_image(&request.into_inner().data);
+
+        // Convert to domain type
+        let input_image = mnist::types::MnistImage::try_from(processed_image).unwrap();
 
         let prediction = self.inference_engine.predict(input_image).unwrap();
 
@@ -52,6 +52,22 @@ impl Mnist for MnistService {
     }
 }
 
+fn preprocess_image(image_bytes: &[u8]) -> Vec<f32> {
+    // Decode image
+    let img = image::load_from_memory(image_bytes).unwrap();
+
+    // Convert to grayscale and resize to 28x28
+    let gray = img.to_luma8();
+    let resized = image::imageops::resize(&gray, 28, 28, image::imageops::FilterType::Triangle);
+    let data: Vec<f32> = resized
+        .into_raw()
+        .into_iter()
+        // Converts to black bacground and white pencil by substracting from one
+        .map(|b| 1.0 - (b as f32) / 255.0)
+        .collect();
+
+    data
+}
 #[tokio::main]
 async fn main() {
     let addr = "[::1]:50051".parse().unwrap();

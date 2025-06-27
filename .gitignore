@@ -22,3 +22,12 @@ target
 
 # Mac stuff
 .DS_Store
+
+data
+
+# Python
+**/__pycache__
+**/*.venv
+**/lightning_logs
+
+models/

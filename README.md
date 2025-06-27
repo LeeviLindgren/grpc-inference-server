@@ -16,5 +16,11 @@ Without gRPC reflection:
 grpcurl -plaintext -proto ./proto/mnist.proto \
         -d @ \
         '[::1]:50051' mnist.Mnist.Predict \
-        < examples/data/request.example.json
+        < grpc-server/examples/data/request.json
+```
+
+Proto compatible json to send with grpcurl:
+
+```sh
+echo '{"data": "'$(base64 -w 0 -i ~/Desktop/four.png)'"}' > data/requests/four.json
 ```

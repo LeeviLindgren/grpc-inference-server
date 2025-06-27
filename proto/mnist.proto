@@ -9,7 +9,7 @@ service Mnist {
 message MnistImage {
   // The pixel data for the image, represented as a repeated field of integers.
   // Each integer represents a pixel value (0-255) in the grayscale image.
-  repeated float data = 2;
+  bytes data = 1;
 }
 
 message MnistPrediction {
