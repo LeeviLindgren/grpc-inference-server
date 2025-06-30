@@ -2,7 +2,7 @@
 use candle_core::{DType, Device, Result};
 use candle_nn::{VarBuilder, VarMap};
 
-use mnist::model::MnistMLP;
+use mnist::MnistMLP;
 
 fn main() -> Result<()> {
     let device = Device::Cpu;
