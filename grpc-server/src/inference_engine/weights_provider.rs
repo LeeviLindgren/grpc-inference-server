@@ -7,6 +7,7 @@ pub trait WeightsProvider {
     fn load_weights(&self) -> Result<Vec<u8>>;
 }
 
+#[derive(Debug, Clone)]
 pub struct LocalFileProvider {
     path: PathBuf,
 }

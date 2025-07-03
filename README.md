@@ -16,7 +16,7 @@ Without gRPC reflection:
 grpcurl -plaintext -proto ./proto/mnist.proto \
         -d @ \
         '[::1]:50051' mnist.Mnist.Predict \
-        < grpc-server/examples/data/request.json
+        < your_request.json
 ```
 
 

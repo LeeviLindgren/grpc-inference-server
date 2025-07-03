@@ -1,5 +1,7 @@
+use crate::config::{ConfigBuilder, ServerConfig};
 use crate::inference_engine::ModelArchitecture;
 use clap::{Parser, ValueEnum};
+use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -26,6 +28,25 @@ pub struct Args {
     /// Data type to use for computations
     #[arg(long, default_value = "f32")]
     pub dtype: String,
+
+    /// Server bind address
+    #[arg(long, default_value = "[::1]:50051")]
+    pub address: String,
+
+    /// Tracing level (trace, debug, info, warn, error)
+    #[arg(long, default_value = "info")]
+    pub log_level: String,
+
+    /// Log format (pretty, json, compact)
+    #[arg(long, default_value = "pretty")]
+    pub log_format: LogFormat,
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum LogFormat {
+    Pretty,
+    Json,
+    Compact,
 }
 
 impl Args {
@@ -61,6 +82,40 @@ impl Args {
                 .to_str()
                 .ok_or_else(|| crate::Error::custom("Invalid UTF-8 in weights path"))?,
         )
+    }
+
+    /// Get the server address
+    pub fn get_address(&self) -> Result<SocketAddr> {
+        self.address
+            .parse()
+            .map_err(|e| crate::Error::custom(format!("Invalid address '{}': {}", self.address, e)))
+    }
+
+    /// Get the tracing level
+    pub fn get_tracing_level(&self) -> Result<tracing::Level> {
+        match self.log_level.to_lowercase().as_str() {
+            "trace" => Ok(tracing::Level::TRACE),
+            "debug" => Ok(tracing::Level::DEBUG),
+            "info" => Ok(tracing::Level::INFO),
+            "warn" => Ok(tracing::Level::WARN),
+            "error" => Ok(tracing::Level::ERROR),
+            _ => Err(crate::Error::custom(format!(
+                "Invalid log level '{}'. Supported levels: trace, debug, info, warn, error",
+                self.log_level
+            ))),
+        }
+    }
+
+    /// Convert CLI args to ServerConfig
+    pub fn to_server_config(&self) -> Result<ServerConfig> {
+        ConfigBuilder::new()
+            .address(self.get_address()?)
+            .device(self.get_device()?)
+            .dtype(self.get_dtype()?)
+            .weights_provider(self.get_weights_provider()?)
+            .model_architecture(self.model_architecture)
+            .tracing_level(self.get_tracing_level()?)
+            .build()
     }
 }
 
@@ -113,6 +168,9 @@ mod tests {
             model_weights: PathBuf::from("test.bin"),
             device: "cpu".to_string(),
             dtype: "f32".to_string(),
+            address: "[::1]:50051".to_string(),
+            log_level: "info".to_string(),
+            log_format: LogFormat::Pretty,
         };
 
         let device = args.get_device().unwrap();
@@ -126,9 +184,44 @@ mod tests {
             model_weights: PathBuf::from("test.bin"),
             device: "cpu".to_string(),
             dtype: "f32".to_string(),
+            address: "[::1]:50051".to_string(),
+            log_level: "info".to_string(),
+            log_format: LogFormat::Pretty,
         };
 
         let dtype = args.get_dtype().unwrap();
         assert_eq!(dtype, DType::F32);
+    }
+
+    #[test]
+    fn test_get_address() {
+        let args = Args {
+            model_architecture: ModelArchitecture::Conv,
+            model_weights: PathBuf::from("test.bin"),
+            device: "cpu".to_string(),
+            dtype: "f32".to_string(),
+            address: "127.0.0.1:8080".to_string(),
+            log_level: "info".to_string(),
+            log_format: LogFormat::Pretty,
+        };
+
+        let addr = args.get_address().unwrap();
+        assert_eq!(addr.to_string(), "127.0.0.1:8080");
+    }
+
+    #[test]
+    fn test_get_tracing_level() {
+        let args = Args {
+            model_architecture: ModelArchitecture::Conv,
+            model_weights: PathBuf::from("test.bin"),
+            device: "cpu".to_string(),
+            dtype: "f32".to_string(),
+            address: "[::1]:50051".to_string(),
+            log_level: "debug".to_string(),
+            log_format: LogFormat::Pretty,
+        };
+
+        let level = args.get_tracing_level().unwrap();
+        assert_eq!(level, tracing::Level::DEBUG);
     }
 }

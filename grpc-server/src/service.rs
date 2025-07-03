@@ -4,6 +4,7 @@ use tonic::{Request, Response, Status};
 use crate::proto::mnist_server::Mnist;
 use crate::proto::{MnistImage, MnistPrediction};
 
+use crate::config::ServiceConfig;
 use crate::inference_engine::weights_provider::{LocalFileProvider, WeightsProvider};
 use crate::inference_engine::{InferenceEngine, InferenceEngineBuilder, ModelArchitecture};
 use candle_core::{DType, Device};
@@ -13,20 +14,13 @@ pub struct MnistService {
     inference_engine: InferenceEngine,
 }
 
-pub struct ServiceConfig {
-    pub device: Device,
-    pub dtype: DType,
-    pub provider: LocalFileProvider,
-    pub model_architectur: ModelArchitecture,
-}
-
 impl MnistService {
     pub fn new(config: ServiceConfig) -> Result<Self> {
         let inference_engine = InferenceEngineBuilder::new()
-            .model_architecture(config.model_architectur)
+            .model_architecture(config.model_architecture)
             .device(config.device)
             .dtype(config.dtype)
-            .build(config.provider)?;
+            .build(config.weights_provider)?;
 
         Ok(MnistService { inference_engine })
     }

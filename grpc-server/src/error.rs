@@ -34,3 +34,5 @@ impl From<Error> for Status {
         }
     }
 }
+
+impl std::error::Error for Error {}
