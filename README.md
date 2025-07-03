@@ -4,15 +4,9 @@ This repo contains simple gRPC server implementation for serving MNIST digit cla
 Purpose of this project is personal learning and experimentation with [tonic](https://github.com/hyperium/tonic)
 for rust implementation of gRPC; and [candle-rs](https://github.com/huggingface/candle), a ml/tensor framework in Rust.
 
-## Why Candle?
-
-Candle-rs offers several advantages for ML inference in Rust:
-- **Minimal binary size**: The release binary of the server impl is only ~6MB without model weights
-- **No Python runtime dependency**: Pure Rust implementation
-- **Memory efficient**: Lower memory footprint compared to Python-based solutions
-- **Fast inference**: Optimized tensor operations in Rust
-
-Whether these advantages are significant, depends ofcourse on the use case.
+One nice feature of using Rust in ml-inference is the lightweight deployments. While Python deployments with deep learning
+frameworks like Pytorch often result in container sizes of multiple GBs, with `candle-rs`,  the release binary size of the
+server implementation is only ~6MB (without model weights).
 
 ## Model Architectures
 
@@ -31,8 +25,6 @@ This project supports two (rather trivial) neural network architectures for MNIS
 These models are defined in the `mnist` sub-crate.
 
 ## Usage
-
-## Getting Started
 
 ### Prerequisites
 
@@ -81,7 +73,7 @@ Model training is done in Python with Pytorch:
 
 You can check other available CLI args with `--help`.
 
-## Getting predictions from the Server
+### Getting predictions from the Server
 
 As the protocol expects the images to be sent as raw bytes, one can convert image to base64
 and create a request in JSON format:
