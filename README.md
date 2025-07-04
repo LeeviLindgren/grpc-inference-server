@@ -2,10 +2,10 @@
 
 This repo contains simple gRPC server implementation for serving MNIST digit classification requests using Rust stack.
 Purpose of this project is personal learning and experimentation with [tonic](https://github.com/hyperium/tonic)
-for rust implementation of gRPC; and [candle-rs](https://github.com/huggingface/candle), a ml/tensor framework in Rust.
+for rust implementation of gRPC; and [candle](https://github.com/huggingface/candle), a ml/tensor framework in Rust.
 
 One nice feature of using Rust in ml-inference is the lightweight deployments. While Python deployments with deep learning
-frameworks like Pytorch often result in container sizes of multiple GBs, with `candle-rs`,  the release binary size of the
+frameworks like Pytorch often result in container sizes of multiple GBs, with `candle`,  the release binary size of the
 server implementation is only ~6MB (without model weights).
 
 ## Model Architectures
